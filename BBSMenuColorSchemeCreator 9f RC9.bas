@@ -432,6 +432,7 @@ DO UNTIL EOF(1)
         IF display = "pcb" THEN
             GOSUB displ
             IF flag$ = "Y1" THEN
+                GOSUB colorchange
                 PRINT #2, backgroundcolorpcb + foregroundcolorpcb + c$;
             ELSEIF flag$ = "Y2" THEN
                 GOSUB colorchange
@@ -920,7 +921,7 @@ IF g2 = 4 THEN t2 = 3
 IF g2 = 5 THEN t2 = 2
 IF g2 = 6 THEN t2 = 1
 IF g2 = 7 THEN t2 = 0
-IF g2 = 0 THEN GOTO pick5
+IF g2 = 0 THEN GOTO pick6
 RETURN
 
 
