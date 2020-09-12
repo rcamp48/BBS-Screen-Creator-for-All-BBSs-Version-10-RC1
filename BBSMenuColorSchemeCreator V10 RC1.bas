@@ -83,19 +83,23 @@ _FULLSCREEN
 CLS
 SCREEN 12
 COLOR 12, 14
-LOCATE 11, 24
+LOCATE 10, 24
 PRINT "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-LOCATE 12, 24
+LOCATE 11, 24
 PRINT "%                 BBS Screen Creator Written By Russ Campbell                  %"
+LOCATE 12, 24
+PRINT "%                                                                              %"
 LOCATE 13, 24
-PRINT "%                                                                              %"
+PRINT "%                   Final Version 10 Release Candidate RC1                     %"
 LOCATE 14, 24
-PRINT "%                  Final Version 9.04f Release Candidate RC9                   %"
-LOCATE 15, 24
 PRINT "%                                                                              %"
+LOCATE 15, 24
+PRINT "                 All parts of the program are: fully functional                %"
 LOCATE 16, 24
-PRINT "%                    Press any key to continue.............                    %"
+PRINT "%                                                                              %"
 LOCATE 17, 24
+PRINT "%                    Press any key to continue.............                    %"
+LOCATE 18, 24
 PRINT "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 DO WHILE INKEY$ = ""
 LOOP
@@ -105,8 +109,8 @@ COLOR 7, 0
 setup:
 CLS
 PRINT
-PRINT "BBS Menu Color Scheme Creator 9.04f Final Version RC9"
-PRINT "Written by Russ Campbell Updated September 11 2020"
+PRINT "BBS Menu Color Scheme Creator Version 10 Final Version RC1"
+PRINT "Written by Russ Campbell Updated September 12 2020"
 PRINT
 PRINT "First of all design your menus in straight text no colors, etc"
 PRINT "Do not put any background colors in either as the program will"
@@ -168,15 +172,20 @@ PRINT "Demo files that are available are: "
 PRINT
 PRINT "In the Menu selector"
 PRINT
-PRINT "inet5 inet9 msg1 msg5 msg6 msg9  main1 main5 main6 main9 file1 file5 file6 file9 sysop8 sysop9" 'display demo files that are available
+PRINT "    inet5     inet5     inet6    inet9"
+PRINT "    msg1      msg5      msg6     msg9"
+PRINT "    main1     main5     main6    main9"
+PRINT "    file1     file5     file6    file9"
+PRINT "    sysop8    sysop9" '                  display demo files that are available
 PRINT
 PRINT "In the Disp selector"
 PRINT
-PRINT "prelog goodbye"
+PRINT "    prelog goodbye"
 PRINT
 PRINT "More are coming soon. Custom files are up to you to upload and then use"
 PRINT
-INPUT "Text Filename : [Do not put in the extender.] [Enter defaults to main5] : ", file ' ask user for filename
+PRINT "Filename : [Do not put in the extender ]"
+INPUT "           [Enter defaults to main5    ] : ", file ' ask user for filename
 IF file = "a" OR file = "A" THEN GOTO inputscreen
 IF file = "b" OR file = "B" THEN GOTO inputscreen
 IF file = "c" OR file = "C" THEN GOTO inputscreen
@@ -185,13 +194,14 @@ IF file = "e" OR file = "E" THEN GOTO inputscreen
 displays:
 CLS
 PRINT "Output display [A] Ansi [B] Wildcat BBS  [C] PCboard BBS "
-INPUT "Output Display [D] Syncronet BBS  [E] Mystic BBS : ", answer ' ask which BBS display the user wants
-answer = UCASE$(answer)
-IF answer = "A" THEN display = "ansi": GOTO menu
-IF answer = "B" THEN display = "wc8": GOTO menu ' select display coding by what the user types in
-IF answer = "C" THEN display = "pcb": GOTO menu
-IF answer = "D" THEN display = "syn": GOTO menu
-IF answer = "E" THEN display = "mys": GOTO menu
+PRINT "Output Display [D] Syncronet BBS  [E] Mystic BBS : " 'which BBS display the user wants
+display$ = INPUT$(1)
+display$ = UCASE$(display$)
+IF display$ = "A" THEN display = "ansi": GOTO menu
+IF display$ = "B" THEN display = "wc8": GOTO menu ' select display coding by what the user types in
+IF display$ = "C" THEN display = "pcb": GOTO menu
+IF display$ = "D" THEN display = "syn": GOTO menu
+IF display$ = "E" THEN display = "mys": GOTO menu
 GOTO displays
 startit:
 
@@ -262,7 +272,8 @@ RETURN
 
 
 menu:
-INPUT "[M]enu file or [D]isplay file : ", answer
+PRINT "[M]enu file or [D]isplay file : "
+answer$ = INPUT$(1)
 answer = UCASE$(answer) ' ask the user what type of display they want, display file
 menuchoice = answer ' or menu file , gives two choices
 IF menuchoice = "M" OR menuchoice = "D" OR menuchoice = "" THEN GOTO fileit
@@ -301,6 +312,7 @@ pcbmenu = "c:\display\bbsmenupcb\" + file4
 synmenu = "c:\display\bbsmenusyncro\" + file5
 mysmenu = "C:\display\bbsmenumystic\" + file6
 asciipromptmenu = "c:\display\bbsmenuascii\" + file7
+ON ERROR GOTO errorhandle
 IF menuchoice = "D" THEN
     contlne = 0
     GOSUB pick
@@ -365,6 +377,8 @@ IF display = "wc8" THEN
     PRINT #2, "@CLS@"
     ' set background to black
     COLOR 0, 0
+    PRINT #2, "@0007@"
+    PRINT #2, ""
 END IF
 IF display = "pcb" THEN
     ' clear screen
@@ -384,17 +398,18 @@ IF display = "mys" THEN
     ' set background to black
     COLOR 0, 0
 END IF
-IF display = "ansi" OR display = "syn" THEN GOSUB setcolors4
-IF display = "wc8" OR display = "pcb" OR display = "mys" THEN GOSUB setcolors
+IF display = "ansi" OR display = "syn" THEN GOSUB setcolorsall8
+IF display = "wc8" OR display = "pcb" OR display = "mys" THEN GOSUB setcolorsall16
 DO UNTIL EOF(1)
     LINE INPUT #1, lnumber
     FOR i = 1 TO LEN(lnumber)
 
         b = MID$(lnumber, i, 1) ' Calculates the ascii value of every character in the line
         c$ = b
-        GOSUB specialcharacters3
-        GOSUB specialcharacters2
         IF display = "ansi" THEN
+            GOSUB specialcharacters3
+            GOSUB specialcharacters2
+
             GOSUB displ
             IF flag$ = "Y1" THEN
                 GOSUB colorchange2
@@ -414,6 +429,9 @@ DO UNTIL EOF(1)
         END IF
 
         IF display = "wc8" THEN
+            GOSUB specialcharacters3
+            GOSUB specialcharacters2
+
             GOSUB displ
             IF flag$ = "Y1" THEN
                 GOSUB colorchange
@@ -430,6 +448,9 @@ DO UNTIL EOF(1)
             PRINT c$;
         END IF
         IF display = "pcb" THEN
+            GOSUB specialcharacters3
+            GOSUB specialcharacters2
+
             GOSUB displ
             IF flag$ = "Y1" THEN
                 GOSUB colorchange
@@ -447,6 +468,9 @@ DO UNTIL EOF(1)
         END IF
 
         IF display = "syn" THEN
+            GOSUB specialcharacters3
+            GOSUB specialcharacters2
+
             GOSUB displ
             IF flag$ = "Y1" THEN
                 GOSUB colorchange2
@@ -463,6 +487,9 @@ DO UNTIL EOF(1)
             PRINT c$;
         END IF
         IF display = "mys" THEN
+            GOSUB specialcharacters3
+            GOSUB specialcharacters2
+
             GOSUB displ
             IF flag$ = "Y1" THEN
                 GOSUB colorchange
@@ -472,8 +499,6 @@ DO UNTIL EOF(1)
                 PRINT #2, backgroundcolormystic + foregroundcolormystic + c$;
             ELSEIF flag$ = "Y3" THEN
                 GOSUB colorchange
-                c = x
-                d = y
                 PRINT #2, backgroundcolormystic + foregroundcolormystic + c$;
             ELSE
                 PRINT #2, c$;
@@ -484,14 +509,15 @@ DO UNTIL EOF(1)
     NEXT i
     PRINT #2, ""
     PRINT
-    IF display = "syn" OR display = "ansi" THEN GOSUB setcolors3
-    IF display = "wc8" AND display = "pcb" OR display = "mys" THEN GOSUB setcolors3
+    IF display = "syn" OR display = "ansi" THEN GOSUB setcolorsg8
+    IF display = "wc8" OR display = "pcb" OR display = "mys" THEN GOSUB setcolorsg16
 LOOP
 
 fini:
 closeit:
 CLOSE #1
-
+PRINT #2, "@0007@"
+PRINT #2, ""
 COLOR 7, 0
 IF menuchoice = "M" THEN
     DO UNTIL EOF(3)
@@ -505,7 +531,9 @@ END IF
 CLOSE #2
 CLOSE #3
 COLOR 7, 0
-INPUT "Create another screen ? : ", answer
+PRINT
+PRINT " Create another screen ? : "
+answer = INPUT$(1)
 answer = UCASE$(answer)
 IF answer = "Y" THEN
     contlne = 0
@@ -516,6 +544,13 @@ END IF
 GOTO finish
 finish:
 CLS
+PRINT "My program is now finished and I"
+PRINT "am looking for suggestions on ways"
+PRINT "To improve it. The program has been"
+PRINT "tested with Winserver 8.0 but has"
+PRINT "not been tested with any other BBS"
+PRINT "programs at this moment."
+PRINT
 PRINT "Program written by Russ Campbell"
 PRINT "For more information on how I"
 PRINT "wrote this program, contact me"
@@ -523,7 +558,7 @@ PRINT "on Facebook at many of the groups"
 PRINT "I am in , or email me at"
 PRINT "rcamp48@rogers.com"
 PRINT
-PRINT "Thank you for using BBS Menu Color Scheme Creator 9.04a RC9."
+PRINT "Thank you for using BBS Menu Color Scheme Creator 10 RC1."
 PRINT
 END
 pick:
@@ -531,7 +566,7 @@ RANDOMIZE TIMER
 pick = INT(RND(1) * 4) + 1
 RETURN
 displ:
-IF display = "ANSI" THEN
+IF display = "ansi" THEN
     IF x = 0 THEN code0b = CHR$(27) + CHR$(91) + CHR$(52) + CHR$(48) + CHR$(109) ' Black     Background
     IF y = 0 THEN code0f = CHR$(27) + CHR$(91) + CHR$(51) + CHR$(48) + CHR$(109) ' Black     Foreground
     IF x = 1 THEN code1b = CHR$(27) + CHR$(91) + CHR$(52) + CHR$(52) + CHR$(109) ' Blue      Background
@@ -608,14 +643,14 @@ IF display = "pcb" THEN
     IF x = 5 THEN backgroundcolorpcb$ = "@X5"
     IF x = 6 THEN backgroundcolorpcb$ = "@X6"
     IF x = 7 THEN backgroundcolorpcb$ = "@X7"
-    IF x = 0 THEN backgroundcolorpcb$ = "@X8"
-    IF x = 1 THEN backgroundcolorpcb$ = "@X9"
-    IF x = 2 THEN backgroundcolorpcb$ = "@XA"
-    IF x = 3 THEN backgroundcolorpcb$ = "@XB"
-    IF x = 4 THEN backgroundcolorpcb$ = "@XC"
-    IF x = 5 THEN backgroundcolorpcb$ = "@XD"
-    IF x = 6 THEN backgroundcolorpcb$ = "@XE"
-    IF x = 7 THEN backgroundcolorpcb$ = "@XF"
+    IF x = 8 THEN backgroundcolorpcb$ = "@X8"
+    IF x = 9 THEN backgroundcolorpcb$ = "@X9"
+    IF x = 10 THEN backgroundcolorpcb$ = "@XA"
+    IF x = 11 THEN backgroundcolorpcb$ = "@XB"
+    IF x = 12 THEN backgroundcolorpcb$ = "@XC"
+    IF x = 13 THEN backgroundcolorpcb$ = "@XD"
+    IF x = 14 THEN backgroundcolorpcb$ = "@XE"
+    IF x = 15 THEN backgroundcolorpcb$ = "@XF"
     IF y = 0 THEN foregroundcolorpcb$ = "0@"
     IF y = 1 THEN foregroundcolorpcb$ = "1@"
     IF y = 2 THEN foregroundcolorpcb$ = "2@"
@@ -624,14 +659,14 @@ IF display = "pcb" THEN
     IF y = 5 THEN foregroundcolorpcb$ = "5@"
     IF y = 6 THEN foregroundcolorpcb$ = "6@"
     IF y = 7 THEN foregroundcolorpcb$ = "7@"
-    IF y = 0 THEN foregroundcolorpcb$ = "8@"
-    IF y = 1 THEN foregroundcolorpcb$ = "9@"
-    IF y = 2 THEN foregroundcolorpcb$ = "A@"
-    IF y = 3 THEN foregroundcolorpcb$ = "B@"
-    IF y = 4 THEN foregroundcolorpcb$ = "C@"
-    IF y = 5 THEN foregroundcolorpcb$ = "D@"
-    IF y = 6 THEN foregroundcolorpcb$ = "E@"
-    IF y = 7 THEN foregroundcolorpcb$ = "F@"
+    IF y = 8 THEN foregroundcolorpcb$ = "8@"
+    IF y = 9 THEN foregroundcolorpcb$ = "9@"
+    IF y = 10 THEN foregroundcolorpcb$ = "A@"
+    IF y = 11 THEN foregroundcolorpcb$ = "B@"
+    IF y = 12 THEN foregroundcolorpcb$ = "C@"
+    IF y = 13 THEN foregroundcolorpcb$ = "D@"
+    IF y = 14 THEN foregroundcolorpcb$ = "E@"
+    IF y = 15 THEN foregroundcolorpcb$ = "F@"
 
 END IF
 IF display = "syn" THEN
@@ -728,146 +763,120 @@ END IF
 RETURN
 colorchange:
 IF flag$ = "Y1" THEN
-    GOSUB pick2
-    IF g1 = 15 THEN g1 = 7
-    IF g1 = 14 THEN g1 = 6
-    IF g1 = 13 THEN g1 = 5
-    IF g1 = 12 THEN g1 = 4
-    IF g1 = 11 THEN g1 = 3
-    IF g1 = 10 THEN g1 = 2
-    IF g1 = 9 THEN g1 = 1
-    IF g1 = 8 THEN g1 = 0
-
+    GOSUB pick1
     COLOR g1, t1
+
     x = g1
     y = t1
-    c = x
-    d = y
 ELSEIF flag$ = "Y2" THEN
 
-    GOSUB pick3
-    IF g2 = 15 THEN g2 = 7
-    IF g2 = 14 THEN g2 = 6
-    IF g2 = 13 THEN g2 = 5
-    IF g2 = 12 THEN g2 = 4
-    IF g2 = 11 THEN g2 = 3
-    IF g2 = 10 THEN g2 = 3
-    IF g2 = 9 THEN g2 = 1
-    IF g2 = 8 THEN g2 = 0
+    GOSUB pick2
     COLOR g2, t2
+
     x = g2
     y = t2
 ELSEIF flag$ = "Y3" THEN
 
-    GOSUB pick1
-    IF g = 15 THEN g = 7
-    IF g = 14 THEN g = 6
-    IF g = 13 THEN g = 5
-    IF g = 12 THEN g = 4
-    IF g = 11 THEN g = 3
-    IF g = 10 THEN g = 2
-    IF g = 9 THEN g = 1
-    IF g = 8 THEN g = 0
+    GOSUB pick3
     COLOR g, t
     x = g
     y = t
-    c = x
-    d = y
+    c1 = x
+
 END IF
 RETURN
 colorchange2:
 IF flag$ = "Y1" THEN
-    GOSUB pick5
-    IF g1 = 0 THEN t1 = 7
-    IF g1 = 1 THEN t1 = 6
-    IF g1 = 2 THEN t1 = 5
-    IF g1 = 3 THEN t1 = 4
-    IF g1 = 4 THEN t1 = 3
-    IF g1 = 5 THEN t1 = 2
-    IF g1 = 6 THEN t1 = 1
-    IF g1 = 7 THEN t1 = 0
+    GOSUB pick4
 
     COLOR g1, t1
     x = g1
     y = t1
-    c = x
-    d = y
 ELSEIF flag$ = "Y2" THEN
 
-    GOSUB pick6
-    IF g2 = 0 THEN t2 = 7
-    IF g2 = 1 THEN t2 = 6
-    IF g2 = 2 THEN t2 = 5
-    IF g2 = 3 THEN t2 = 4
-    IF g2 = 4 THEN t2 = 3
-    IF g2 = 5 THEN t2 = 2
-    IF g2 = 6 THEN t2 = 1
-    IF g2 = 7 THEN t2 = 0
+    GOSUB pick5
     COLOR g2, t2
+
+
     x = g2
     y = t2
 ELSEIF flag$ = "Y3" THEN
 
-    GOSUB pick4
-    IF g = 0 THEN t = 7
-    IF g = 1 THEN t = 6
-    IF g = 2 THEN t = 5
-    IF g = 3 THEN t = 4
-    IF g = 4 THEN t = 3
-    IF g = 5 THEN t = 2
-    IF g = 6 THEN t = 1
-    IF g = 7 THEN t = 0
+    GOSUB pick6
     COLOR g, t
     x = g
     y = t
-    c = x
-    d = y
+    c1 = x
 END IF
 RETURN
 
-setcolors:
+setcolorsall8:
 RANDOMIZE TIMER
-g = INT(RND(1) * 7) + 1
 g1 = INT(RND(1) * 7) + 1
-IF g1 = g THEN GOTO setcolors
+GOSUB pick4
 g2 = INT(RND(1) * 7) + 1
-IF g2 = g1 OR g2 = g THEN GOTO setcolors
+IF g2 = g1 THEN GOTO setcolorsall8
+GOSUB pick5
+g = INT(RND(1) * 7) + 1
+IF g = g2 OR g = g1 THEN GOTO setcolorsall8
+IF g = c1 THEN GOTO setcolorsall8
+IF g = c2 THEN GOTO setcolorsall8
+IF g = 0 THEN GOTO setcolorsall8
+GOSUB pick6
+
 RETURN
-setcolors3:
+setcolorsg8:
 RANDOMIZE TIMER
 g = INT(RND(1) * 7) + 1
+IF g = c1 THEN GOTO setcolorsg8
+IF g = c2 THEN GOTO setcolorsg8
+IF g = 0 THEN GOTO setcolorsg8
+GOSUB pick6
+
 RETURN
-setcolors4:
+setcolorsg16:
 RANDOMIZE TIMER
 g = INT(RND(1) * 7) + 1
+IF g = c1 THEN GOTO setcolorsg16
+IF g = c2 THEN GOTO setcolorsg16
+IF g = 0 THEN GOTO setcolorsg16
+GOSUB pick3
+RETURN
+
+setcolorsall16:
+RANDOMIZE TIMER
 g1 = INT(RND(1) * 7) + 1
-IF g1 = g THEN GOTO setcolors4
+GOSUB pick1
 g2 = INT(RND(1) * 7) + 1
-IF g2 = g1 OR g2 = g THEN GOTO setcolors4
+IF g2 = g1 THEN GOTO setcolorsall16
+GOSUB pick2
+g = INT(RND(1) * 7) + 1
+IF g = g2 OR g = g1 THEN GOTO setcolorsall16
+IF g = c1 THEN GOTO setcolorsall16
+IF g = c2 THEN GOTO setcolorsall16
+IF g = 0 THEN GOTO setcolorsall16
+GOSUB pick3
+
 RETURN
-filenotfound:
+
+errorhandle:
 CLS
 CLOSE #1
 PRINT
-PRINT "File "; file1; " Not Found .... Please Try Again."
+PRINT "Most likely there was a filename that you entered"
+PRINT "That did not exist or you have not created the"
+PRINT "prompt file for the Menu item desired. Or you picked"
+PRINT "a Menu filename and selected a display output instead "
+PRINT "a Menu display, the difference is that Menu output "
+PRINT "files have a prompt file, display files do not. "
+PRINT
+PRINT "Your File "; file1; "Has Not Been Found .... Please Try Again."
 PRINT "Press any key to contine ......"
 DO WHILE INKEY$ = ""
 LOOP
 GOTO inputscreen
 RETURN
 pick1:
-IF g = 0 THEN t = 7
-IF g = 1 THEN t = 6
-IF g = 2 THEN t = 5
-IF g = 3 THEN t = 4
-IF g = 4 THEN t = 3
-IF g = 5 THEN t = 2
-IF g = 6 THEN t = 1
-IF g = 7 THEN t = 0
-IF g = 0 THEN GOTO pick1
-
-RETURN
-pick2:
 IF g1 = 0 THEN t1 = 7
 IF g1 = 1 THEN t1 = 6
 IF g1 = 2 THEN t1 = 5
@@ -876,22 +885,20 @@ IF g1 = 4 THEN t1 = 3
 IF g1 = 5 THEN t1 = 2
 IF g1 = 6 THEN t1 = 1
 IF g1 = 7 THEN t1 = 0
-IF g1 = 0 THEN GOTO pick2
+RETURN
+
+pick2:
+IF g2 = 0 THEN t2 = 7
+IF g2 = 1 THEN t2 = 6
+IF g2 = 2 THEN t2 = 5
+IF g2 = 3 THEN t2 = 4
+IF g2 = 4 THEN t2 = 3
+IF g2 = 5 THEN t2 = 2
+IF g2 = 6 THEN t2 = 1
+IF g2 = 7 THEN t2 = 0
+
 RETURN
 pick3:
-IF g2 = 0 THEN t2 = 7
-IF g2 = 1 THEN t2 = 6
-IF g2 = 2 THEN t2 = 5
-IF g2 = 3 THEN t2 = 4
-IF g2 = 4 THEN t2 = 3
-IF g2 = 5 THEN t2 = 2
-IF g2 = 6 THEN t2 = 1
-IF g2 = 7 THEN t2 = 0
-IF g2 = 0 THEN GOTO pick3:
-
-RETURN
-pick4:
-IF g = 0 THEN t = 7
 IF g = 1 THEN t = 6
 IF g = 2 THEN t = 5
 IF g = 3 THEN t = 4
@@ -899,9 +906,10 @@ IF g = 4 THEN t = 3
 IF g = 5 THEN t = 2
 IF g = 6 THEN t = 1
 IF g = 7 THEN t = 0
-IF g = 0 THEN GOTO pick4
+c1 = g
+c2 = g1
 RETURN
-pick5:
+pick4:
 IF g1 = 0 THEN t1 = 7
 IF g1 = 1 THEN t1 = 6
 IF g1 = 2 THEN t1 = 5
@@ -910,9 +918,8 @@ IF g1 = 4 THEN t1 = 3
 IF g1 = 5 THEN t1 = 2
 IF g1 = 6 THEN t1 = 1
 IF g1 = 7 THEN t1 = 0
-IF g1 = 0 THEN GOTO pick5
 RETURN
-pick6:
+pick5:
 IF g2 = 0 THEN t2 = 7
 IF g2 = 1 THEN t2 = 6
 IF g2 = 2 THEN t2 = 5
@@ -921,7 +928,18 @@ IF g2 = 4 THEN t2 = 3
 IF g2 = 5 THEN t2 = 2
 IF g2 = 6 THEN t2 = 1
 IF g2 = 7 THEN t2 = 0
-IF g2 = 0 THEN GOTO pick6
+RETURN
+pick6:
+
+IF g = 1 THEN t = 6
+IF g = 2 THEN t = 5
+IF g = 3 THEN t = 4
+IF g = 4 THEN t = 3
+IF g = 5 THEN t = 2
+IF g = 6 THEN t = 1
+IF g = 7 THEN t = 0
+c1 = g
+c2 = g1
 RETURN
 
 
